@@ -1,0 +1,17 @@
+/**
+ * src/styles/settings.scss
+ *
+ * Configures SASS variables and Vuetify overwrites
+ */
+
+// https://vuetifyjs.com/features/sass-variables/`
+// @use 'vuetify/settings' with (
+//   $color-pack: false
+// );
+body {
+  font-family: "Shabnam", "Segoe UI", "Roboto", sans-serif !important;
+  font-weight: 400;
+  direction: rtl;
+}
+
+
