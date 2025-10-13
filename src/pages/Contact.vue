@@ -73,11 +73,13 @@
         <v-icon size="32">mdi-email</v-icon>
       </v-btn>
     </v-container>
+    <FloatingContact />
   </v-container>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import FloatingContact from '@/components/FloatingContact.vue'
 
 const valid = ref(false)
 const contactForm = ref(null)
