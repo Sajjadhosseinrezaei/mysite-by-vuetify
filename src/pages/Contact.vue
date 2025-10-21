@@ -36,14 +36,39 @@
           required
         ></v-textarea>
 
+        <!-- Cloudflare Turnstile CAPTCHA -->
+        <vue-turnstile
+          ref="turnstileRef"
+          :site-key="sitekey"
+          v-model="turnstileToken"
+          size="normal"
+          theme="dark"
+          appearance="always"
+          :retry="true"
+          :render-on-mount="true"
+          @expired="onTurnstileExpire"
+          @error="onTurnstileError"
+          class="turnstile-widget mt-4"
+        />
+
         <v-btn
           color="primary"
           class="mt-4"
           @click="submitForm"
-          :disabled="!valid"
+          :disabled="!valid || !turnstileToken"
         >
           ارسال پیام
         </v-btn>
+
+        <!-- Error Message -->
+        <v-alert
+          v-if="turnstileError"
+          type="error"
+          class="mt-4"
+          dismissible
+        >
+          {{ turnstileError }}
+        </v-alert>
       </v-form>
     </v-container>
 
@@ -78,24 +103,70 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import VueTurnstile from 'vue-turnstile'
+import api from '@/api/axios.js'
 import FloatingContact from '@/components/FloatingContact.vue'
 
 const valid = ref(false)
 const contactForm = ref(null)
+const turnstileRef = ref(null)
+const sitekey = ref(import.meta.env.VITE_TURNSTILE_SITEKEY || '')
+const turnstileToken = ref('')  // string خالی (نه null)
+const turnstileError = ref(null)
+
 const form = ref({
   name: '',
   email: '',
   message: ''
 })
 
-function submitForm() {
-  if (contactForm.value.validate()) {
-    alert(`پیام شما با موفقیت ارسال شد!\n\nنام: ${form.value.name}\nایمیل: ${form.value.email}\nپیام: ${form.value.message}`)
-    form.value.name = ''
-    form.value.email = ''
-    form.value.message = ''
-    contactForm.value.resetValidation()
+onMounted(() => {
+  console.log('🔑 Sitekey loaded:', sitekey.value)
+  if (!sitekey.value) {
+    console.error('❌ Sitekey خالیه – widget نشون داده نمی‌شه.')
+    turnstileError.value = 'Sitekey CAPTCHA تنظیم نشده.'
+  }
+})
+
+const onTurnstileExpire = () => {
+  console.log('⏰ Turnstile Expired')
+  turnstileToken.value = ''
+  if (turnstileRef.value) turnstileRef.value.reset()
+}
+
+const onTurnstileError = (error) => {
+  console.error('❌ Turnstile Error:', error)
+  turnstileError.value = 'خطا در CAPTCHA. در حال تلاش مجدد...'
+  setTimeout(() => {
+    if (turnstileRef.value) turnstileRef.value.reset()
+    turnstileToken.value = ''
+  }, 2000)
+}
+
+async function submitForm() {
+  if (contactForm.value.validate() && turnstileToken.value) {
+    try {
+      const response = await api.post('/api/contact/', {
+        name: form.value.name,
+        email: form.value.email,
+        message: form.value.message,
+        turnstile_token: turnstileToken.value
+      })
+
+      alert(`پیام شما با موفقیت ارسال شد!\n\nنام: ${form.value.name}\nایمیل: ${form.value.email}\nپیام: ${form.value.message}`)
+
+      form.value = { name: '', email: '', message: '' }
+      contactForm.value.resetValidation()
+      turnstileToken.value = ''
+      if (turnstileRef.value) turnstileRef.value.reset()
+
+    } catch (err) {
+      console.error('Submit Error:', err)
+      alert('خطا در ارسال.')
+    }
+  } else {
+    alert('لطفاً فرم و CAPTCHA را کامل کنید.')
   }
 }
 </script>
@@ -139,5 +210,10 @@ function submitForm() {
 
 .v-btn {
   text-transform: none;
+}
+
+.turnstile-widget {
+  display: flex;
+  justify-content: center;
 }
 </style>

@@ -6,7 +6,7 @@
       <p class="hero-subtitle mb-4">
         توسعه‌دهنده فرانت‌اند و علاقه‌مند به طراحی سایت‌های مدرن و مینیمال
       </p>
-      <v-btn color="primary" variant="elevated" class="hero-btn" href="#projects">
+      <v-btn color="primary" variant="elevated" class="hero-btn" href="/projects">
         مشاهده پروژه‌ها
       </v-btn>
     </v-container>
@@ -62,94 +62,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-// List of all projects
-const projects = ref([
-  {
-    id: 1,
-    title: 'وبسایت نمونه اول',
-    description: 'این پروژه نمونه مهارت‌ها و طراحی من را نشان می‌دهد.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },
-  {
-    id: 2,
-    title: 'وبسایت نمونه دوم',
-    description: 'نمونه‌ای دیگر از پروژه‌های من با طراحی مدرن.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },
-  {
-    id: 3,
-    title: 'وبسایت نمونه سوم',
-    description: 'نمایش طراحی رابط کاربری حرفه‌ای و قابل توجه.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: false,
-  },
-  {
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },
-  {
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },{
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },{
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },{
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },{
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },{
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },{
-    id: 4,
-    title: 'وبسایت نمونه چهارم',
-    description: 'نمونه پروژه دیگری برای نمایش مهارت‌ها.',
-    image: 'https://via.placeholder.com/400x180',
-    link: '#',
-    featured: true,
-  },
-])
-
-// Computed array of featured projects only
-const featuredProjects = computed(() => projects.value.filter(p => p.featured))
 </script>
 
 <style scoped>
