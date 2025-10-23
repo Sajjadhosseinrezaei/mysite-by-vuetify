@@ -30,8 +30,8 @@
 import { computed } from 'vue'
 
 // --- CONFIG ---
-const phone = '+98912XXXXXXX' // شماره واتساپ کامل با +98
-const telegramUser = 'username' // یوزرنیم تلگرام بدون @
+const phone = '+989039103542' // شماره واتساپ کامل با +98
+const telegramUser = 'sajjadhossein' // یوزرنیم تلگرام بدون @
 
 // --- LINKS ---
 const whatsappLink = computed(() => {
