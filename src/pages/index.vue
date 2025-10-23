@@ -1,12 +1,21 @@
 <template>
   <v-container fluid class="home-page pa-0">
     <!-- Hero Section -->
-    <v-container class="hero-section d-flex flex-column justify-center align-center text-center" fluid>
+    <v-container
+      class="hero-section d-flex flex-column justify-center align-center text-center"
+      fluid
+    >
       <h1 class="hero-title">سلام! من سجاد حسین هستم</h1>
       <p class="hero-subtitle mb-4">
-        توسعه‌دهنده فرانت‌اند و علاقه‌مند به طراحی سایت‌های مدرن و مینیمال
+        توسعه‌دهنده بک‌اند با پایتون و فریم‌ورک جنگو، علاقه‌مند به ساخت
+        سیستم‌های مقیاس‌پذیر و ساختارمند
       </p>
-      <v-btn color="primary" variant="elevated" class="hero-btn" href="/projects">
+      <v-btn
+        color="primary"
+        variant="elevated"
+        class="hero-btn"
+        href="/projects"
+      >
         مشاهده پروژه‌ها
       </v-btn>
     </v-container>
@@ -52,16 +61,17 @@
     <v-container id="about" class="mt-12 text-center">
       <h2 class="section-title mb-4">درباره من</h2>
       <p class="section-text">
-        من سجاد هستم، توسعه‌دهنده وب با علاقه به طراحی رابط کاربری تمیز و مینیمال،
-        تجربه کار با Vue.js، Vuetify و DRF را دارم و همیشه دنبال یادگیری تکنولوژی‌های جدید هستم.
+        من سجاد هستم، توسعه‌دهنده بک‌اند با پایتون و فریم‌ورک جنگو. تمرکز من روی
+        طراحی و پیاده‌سازی APIهای تمیز، امن و مقیاس‌پذیر است. تجربه کار با
+        Django REST Framework، Docker و Nginx دارم و همیشه به دنبال یادگیری
+        ابزارها و فناوری‌های جدید برای بهینه‌تر کردن پروژه‌ها هستم.
       </p>
     </v-container>
   </v-container>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-
+import { ref, computed } from "vue";
 </script>
 
 <style scoped>
