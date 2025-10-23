@@ -58,15 +58,6 @@
     </v-container>
 
     <!-- About Section -->
-    <v-container id="about" class="mt-12 text-center">
-      <h2 class="section-title mb-4">درباره من</h2>
-      <p class="section-text">
-        من سجاد هستم، توسعه‌دهنده بک‌اند با پایتون و فریم‌ورک جنگو. تمرکز من روی
-        طراحی و پیاده‌سازی APIهای تمیز، امن و مقیاس‌پذیر است. تجربه کار با
-        Django REST Framework، Docker و Nginx دارم و همیشه به دنبال یادگیری
-        ابزارها و فناوری‌های جدید برای بهینه‌تر کردن پروژه‌ها هستم.
-      </p>
-    </v-container>
   </v-container>
 </template>
 

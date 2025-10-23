@@ -1,21 +1,13 @@
 <template>
-  <v-footer
-    app
-    height="auto"
-    color="surface"
-    class="text-white py-2"
-  >
+  <v-footer app height="auto" color="surface" class="text-white py-2">
     <v-container>
-      <v-row
-        class="text-right"
-        align="center"
-        justify="space-between"
-      >
+      <v-row class="text-right" align="center" justify="space-between">
         <!-- Right Section (Persian site info) -->
         <v-col cols="12" md="6" class="mb-4 mb-md-0">
           <div class="text-h6 mb-2 font-weight-medium">سجاد حسین</div>
           <div class="text-body-2 text-gray-300">
-            توسعه‌دهنده فرانت‌اند و علاقه‌مند به طراحی تمیز، ساده و مدرن.
+            توسعه‌دهنده بک‌اند با پایتون و فریم‌ورک جنگو، علاقه‌مند به ساخت
+            سیستم‌های پایدار، مقیاس‌پذیر و تمیز.
           </div>
         </v-col>
 
@@ -25,12 +17,7 @@
           md="4"
           class="d-flex justify-start justify-md-end ga-3"
         >
-          <v-btn
-            icon
-            variant="text"
-            href="https://github.com/"
-            target="_blank"
-          >
+          <v-btn icon variant="text" href="https://github.com/" target="_blank">
             <v-icon size="28">mdi-github</v-icon>
           </v-btn>
           <v-btn
@@ -41,11 +28,7 @@
           >
             <v-icon size="28">mdi-linkedin</v-icon>
           </v-btn>
-          <v-btn
-            icon
-            variant="text"
-            href="mailto:info@example.com"
-          >
+          <v-btn icon variant="text" href="mailto:info@example.com">
             <v-icon size="28">mdi-email</v-icon>
           </v-btn>
         </v-col>
