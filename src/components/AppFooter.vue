@@ -17,18 +17,18 @@
           md="4"
           class="d-flex justify-start justify-md-end ga-3"
         >
-          <v-btn icon variant="text" href="https://github.com/" target="_blank">
+          <v-btn icon variant="text" href="https://github.com/Sajjadhosseinrezaei" target="_blank">
             <v-icon size="28">mdi-github</v-icon>
           </v-btn>
           <v-btn
             icon
             variant="text"
-            href="https://linkedin.com/"
+            href="https://www.linkedin.com/in/sajjadhossein-rezaei-b3a0a1320"
             target="_blank"
           >
             <v-icon size="28">mdi-linkedin</v-icon>
           </v-btn>
-          <v-btn icon variant="text" href="mailto:info@example.com">
+          <v-btn icon variant="text" href="sajjadhosseinrezaei@yahoo.com">
             <v-icon size="28">mdi-email</v-icon>
           </v-btn>
         </v-col>
