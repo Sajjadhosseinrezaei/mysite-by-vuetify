@@ -19,9 +19,10 @@ export const useProjectsStore = defineStore('projects', {
         })
         if (!response.ok) throw new Error('خطا در API: ' + response.status)
         const data = await response.json()
-        // اگر API یه آرایه ساده برگردونه
-        this.projects = Array.isArray(data) ? data : [data]
-        this.totalCount = this.projects.length  // فقط تعداد واقعی پروژه‌ها
+        // فقط آرایه معتبر رو قبول کن
+        this.projects = Array.isArray(data) ? [...data] : data ? [data] : []
+        this.totalCount = this.projects.length
+        console.log('Projects loaded:', this.projects.length, 'Total Count:', this.totalCount) // برای دیباگ
       } catch (err) {
         this.error = err.message
         this.projects = []
