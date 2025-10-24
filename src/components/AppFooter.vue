@@ -28,7 +28,7 @@
           >
             <v-icon size="28">mdi-linkedin</v-icon>
           </v-btn>
-          <v-btn icon variant="text" href="sajjadhosseinrezaei@yahoo.com">
+          <v-btn icon variant="text" href="mailto:sajjadhosseinrezaei@yahoo.com">
             <v-icon size="28">mdi-email</v-icon>
           </v-btn>
         </v-col>
@@ -62,5 +62,37 @@
   font-family: "Shabnam", sans-serif;
   backdrop-filter: blur(8px);
   background: rgba(25, 25, 25, 0.85);
+}
+
+/* استایل‌های ریسپانسیو برای موبایل */
+@media (max-width: 600px) {
+  .v-footer {
+    padding: 8px 0 !important; /* کاهش پدینگ عمودی */
+  }
+
+  .v-container {
+    padding: 0 16px; /* کاهش پدینگ کناری */
+  }
+
+  .text-h6 {
+    font-size: 1.2rem !important; /* کاهش اندازه عنوان */
+  }
+
+  .text-body-2 {
+    font-size: 0.9rem !important; /* کاهش اندازه متن توضیحات */
+  }
+
+  .v-btn .v-icon {
+    font-size: 22px !important; /* کاهش اندازه آیکون‌ها */
+  }
+
+  .v-row > .v-col {
+    padding: 4px 0 !important; /* کاهش فاصله بین ستون‌ها */
+  }
+
+  .my-4 {
+    margin-top: 8px !important; /* کاهش مارجین دیوایدر */
+    margin-bottom: 8px !important;
+  }
 }
 </style>

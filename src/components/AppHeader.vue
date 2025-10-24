@@ -14,7 +14,7 @@
       <v-spacer />
 
       <!-- عنوان در سمت چپ -->
-      <v-toolbar-title class="font-weight-bold text-end">سجاد حسین</v-toolbar-title>
+      <v-toolbar-title class="font-weight-bold text-end">SHR</v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" temporary right>
