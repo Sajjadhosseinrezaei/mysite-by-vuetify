@@ -147,7 +147,7 @@ const onTurnstileError = (error) => {
 async function submitForm() {
   if (contactForm.value.validate() && turnstileToken.value) {
     try {
-      const response = await api.post('/api/contact/', {
+      const response = await api.post('/contact/', {
         name: form.value.name,
         email: form.value.email,
         message: form.value.message,
