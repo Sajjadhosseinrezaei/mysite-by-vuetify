@@ -42,7 +42,6 @@
 
           <!-- CLAMPED DESCRIPTION -->
           <div :class="['project-description', { 'is-expanded': showMore }]" ref="descEl">
-            <!-- اگر متن HTML داری از v-html استفاده کن ولی sanitize کن در صورت نیاز -->
             <p v-html="project.description"></p>
           </div>
 
@@ -105,17 +104,16 @@ const errorMessage = ref('')
 const lightbox = ref(false)
 const currentImg = ref(0)
 
-const project = computed(() => store.project || null)
+const project = computed(() => store.currentProject || null) // تغییر به currentProject
 
 // description clamp / read-more
 const showMore = ref(false)
 const isClamped = ref(false)
 const descEl = ref(null)
-const maxLines = 6 // این عدد را اگر خواستی تغییر بده
+const maxLines = 6
 
 function toggleShowMore() {
   showMore.value = !showMore.value
-  // اگر خواستی بعد از باز شدن اسکرول اتوماتیک کنیم اینجا اضافه کن
 }
 
 function techBg(color) {
@@ -142,7 +140,6 @@ function openLightbox(i = 0) { currentImg.value = i; lightbox.value = true }
 function prevImage() { if (!slides.value.length) return; currentImg.value = (currentImg.value - 1 + slides.value.length) % slides.value.length }
 function nextImage() { if (!slides.value.length) return; currentImg.value = (currentImg.value + 1) % slides.value.length }
 
-// بررسی می‌کنیم که آیا متن بیش از maxLines است یا خیر
 async function checkClamp() {
   await nextTick()
   const el = descEl.value && descEl.value.querySelector('p')
@@ -150,9 +147,7 @@ async function checkClamp() {
   const style = getComputedStyle(el)
   const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.4 || 20
   const maxHeight = lineHeight * maxLines
-  // اگر ارتفاع واقعی بیشتر از حداکثر خط است => باید clamp کنیم
   isClamped.value = el.scrollHeight > (maxHeight + 1)
-  // اگر قبلاً باز بود اما متن تغییر کرده، بازگشت به حالت اولیه
   if (!isClamped.value) showMore.value = false
 }
 
@@ -160,7 +155,6 @@ onMounted(async () => {
   loading.value = true
   try {
     await store.loadProject(id)
-    // small delay until DOM paints
     await checkClamp()
   } catch (err) {
     console.error(err)
@@ -171,7 +165,6 @@ onMounted(async () => {
   }
 })
 
-// اگر route پارام تغییر کرد، دوباره لود کن و clamp را بررسی کن
 watch(() => route.params.id, async (newId) => {
   loading.value = true
   try {
@@ -216,8 +209,7 @@ watch(() => route.params.id, async (newId) => {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* این مقدار باید تقریباً برابر line-height * maxLines باشه */
-  max-height: calc(1.7em * 6); /* 6 خط پیش‌فرض */
+  max-height: calc(1.7em * 6);
   -webkit-line-clamp: 6;
   transition: max-height .28s ease;
 }
