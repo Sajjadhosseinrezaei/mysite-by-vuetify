@@ -9,6 +9,7 @@ export const useSkillsStore = defineStore("skills", () => {
   const loading = ref(false);
   const error = ref(false);
   const errorMessage = ref("");
+  const currentSkill = ref(null); // مهارت فعلی برای لود تک‌گانه
 
   // metadata برای pagination
   const currentPage = ref(1);
@@ -41,6 +42,7 @@ export const useSkillsStore = defineStore("skills", () => {
       total.value = data.count ?? skills.value.length;
       currentPage.value = page;
       pageSize.value = page_size;
+      console.log("Skills loaded:", skills.value); // دیباگ
       return { results: skills.value, count: total.value };
     } catch (err) {
       console.error("Failed to load skills", err);
@@ -85,6 +87,7 @@ export const useSkillsStore = defineStore("skills", () => {
       }
       skills.value = allSkills;
       total.value = allSkills.length;
+      console.log("All skills loaded:", allSkills); // دیباگ
       return skills.value;
     } catch (err) {
       console.error("Failed to load all skills", err);
@@ -118,6 +121,7 @@ export const useSkillsStore = defineStore("skills", () => {
         const all = await loadAllSkills({ force: options.force });
         featured.value = all.filter((s) => s.is_featured);
       }
+      console.log("Featured skills loaded:", featured.value); // دیباگ
       return featured.value;
     } catch (err) {
       console.warn(
@@ -127,6 +131,7 @@ export const useSkillsStore = defineStore("skills", () => {
       try {
         const all = await loadAllSkills({ force: options.force });
         featured.value = all.filter((s) => s.is_featured);
+        console.log("Fallback featured skills:", featured.value); // دیباگ
         return featured.value;
       } catch (inner) {
         console.error(inner);
@@ -150,6 +155,7 @@ export const useSkillsStore = defineStore("skills", () => {
       const res = await api.get(`/api/skills/${id}/`);
       const data = res.data ?? res;
       currentSkill.value = data;
+      console.log("Skill loaded:", data); // دیباگ
       return data;
     } catch (err) {
       console.error("Failed to load skill", err);
@@ -171,6 +177,7 @@ export const useSkillsStore = defineStore("skills", () => {
     loading.value = false;
     error.value = false;
     errorMessage.value = "";
+    currentSkill.value = null; // ریست currentSkill
   }
 
   return {
@@ -187,5 +194,6 @@ export const useSkillsStore = defineStore("skills", () => {
     loadFeatured,
     loadSkill,
     clear,
+    currentSkill, // اضافه کردن به return
   };
 });
