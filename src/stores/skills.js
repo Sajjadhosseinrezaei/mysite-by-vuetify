@@ -3,20 +3,21 @@ import { ref } from "vue";
 import api from "@/api/axios"; // باید وجود داشته باشه: baseURL از env گرفته شده
 
 export const useSkillsStore = defineStore("skills", () => {
-  const skills = ref([]); // تمام آیتم‌های دریافت‌شده (از current page)
+  const skills = ref([]); // تمام آیتم‌های دریافت‌شده
   const featured = ref([]); // کش جدا برای featured (اختیاری)
-  const total = ref(0); // total count (from paginated response)
+  const total = ref(0); // total count (from response)
   const loading = ref(false);
   const error = ref(false);
   const errorMessage = ref("");
   const currentSkill = ref(null); // مهارت فعلی برای لود تک‌گانه
 
-  // metadata برای pagination
+  // metadata برای pagination (اختیاری می‌شه)
   const currentPage = ref(1);
-  const pageSize = ref(20); // پیش‌فرض، می‌تونی 9 بذاری یا هرچیزی
+  const pageSize = ref(20); // پیش‌فرض، فقط برای وقتی که صفحه‌بندی می‌خوای
 
   /**
    * loadSkills(page=1, page_size=20, options={force:false})
+   * - لود با صفحه‌بندی (اختیاری)
    * - بازمی‌گرداند: { results, count } یا می‌تونه خطا throw کنه
    */
   async function loadSkills(page = 1, page_size = 20, options = {}) {
@@ -35,7 +36,7 @@ export const useSkillsStore = defineStore("skills", () => {
     errorMessage.value = "";
     try {
       const res = await api.get("/api/skills/", {
-        params: { page, page_size },
+        params: page && page_size ? { page, page_size } : {}, // فقط اگه پارامترها داده شده اعمال کن
       });
       const data = res.data ?? res;
       skills.value = Array.isArray(data.results) ? data.results : data;
@@ -57,7 +58,7 @@ export const useSkillsStore = defineStore("skills", () => {
 
   /**
    * loadAllSkills(options={force:false})
-   * لود همه مهارت‌ها با pagination
+   * - لود همه مهارت‌ها بدون صفحه‌بندی
    */
   async function loadAllSkills(options = {}) {
     if (
@@ -73,21 +74,11 @@ export const useSkillsStore = defineStore("skills", () => {
     error.value = false;
     errorMessage.value = "";
     try {
-      let allSkills = [];
-      let page = 1;
-      const pageSize = 100;
-      while (true) {
-        const res = await api.get("/api/skills/", {
-          params: { page, page_size: pageSize },
-        });
-        const data = res.data ?? res;
-        allSkills = allSkills.concat(data.results || []);
-        if (allSkills.length >= (data.count ?? 0)) break;
-        page++;
-      }
-      skills.value = allSkills;
-      total.value = allSkills.length;
-      console.log("All skills loaded:", allSkills); // دیباگ
+      const res = await api.get("/api/skills/"); // بدون پارامتر صفحه‌بندی
+      const data = res.data ?? res;
+      skills.value = Array.isArray(data.results) ? data.results : data;
+      total.value = skills.value.length; // چون صفحه‌بندی نیست، طول لیست رو می‌گیریم
+      console.log("All skills loaded:", skills.value); // دیباگ
       return skills.value;
     } catch (err) {
       console.error("Failed to load all skills", err);
@@ -111,7 +102,7 @@ export const useSkillsStore = defineStore("skills", () => {
     try {
       // سعی برای فیلتر سرور‌ساید
       const res = await api.get("/api/skills/", {
-        params: { is_featured: true, page: 1, page_size: 100 },
+        params: { is_featured: true },
       });
       const data = res.data ?? res;
       if (Array.isArray(data.results) && data.results.length) {
@@ -194,6 +185,6 @@ export const useSkillsStore = defineStore("skills", () => {
     loadFeatured,
     loadSkill,
     clear,
-    currentSkill, // اضافه کردن به return
+    currentSkill,
   };
 });
