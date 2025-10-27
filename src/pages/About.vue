@@ -91,7 +91,6 @@
         </v-col>
 
         <!-- Skills -->
-        <!-- Skills -->
         <v-col cols="12" md="6">
           <h3 class="skills-title mt-6 mb-3">مهارت‌ها</h3>
 
@@ -103,6 +102,9 @@
             <v-alert type="error" variant="outlined">{{
               skillsStore.errorMessage
             }}</v-alert>
+            <v-btn color="primary" @click="reloadSkills" class="mt-2"
+              >تلاش مجدد</v-btn
+            >
           </div>
 
           <v-row dense v-else>
@@ -160,7 +162,7 @@
 /**
  * About.vue — connected to Pinia:
  *  - profileStore: from src/stores/profile.js (must exist)
- *  - skillsStore: from src/stores/skills.js (must exist; implementation I provided earlier)
+ *  - skillsStore: from src/stores/skills.js (must exist; updated implementation)
  *
  * Utilities:
  *  - resolveImageUrl: converts relative media paths to absolute using VITE_API_URL fallback
@@ -175,9 +177,11 @@ const skillsStore = useSkillsStore();
 
 // load both profile and featured skills on mount
 onMounted(async () => {
-  // don't await them serially — run in parallel for speed
-  profileStore.loadProfile().catch(() => {});
-  skillsStore.loadFeatured().catch(() => {});
+  // run in parallel for speed
+  await Promise.all([
+    profileStore.loadProfile().catch(() => {}),
+    skillsStore.loadFeatured().catch(() => {}),
+  ]);
 });
 
 // show social buttons only if any link exists
@@ -263,6 +267,11 @@ function socialIcon(key) {
 // reload both stores
 function reloadAll() {
   profileStore.loadProfile(true).catch(() => {});
+  skillsStore.loadFeatured(true).catch(() => {});
+}
+
+// reload only skills
+function reloadSkills() {
   skillsStore.loadFeatured(true).catch(() => {});
 }
 
