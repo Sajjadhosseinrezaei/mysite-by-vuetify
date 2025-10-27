@@ -34,14 +34,18 @@
         >
           <v-card class="project-card hover-scale">
             <v-img
-              :src="resolveImageUrl(project.image)"
+              :src="project.featured_image_url"
               height="180"
               class="rounded-top"
             ></v-img>
             <v-card-title>{{ project.title }}</v-card-title>
-            <v-card-text>{{ project.description }}</v-card-text>
+            <v-card-text>{{ project.short_description }}</v-card-text>
             <v-card-actions>
-              <v-btn variant="text" :href="project.link" target="_blank">
+              <v-btn
+                variant="text"
+                :href="project.github_url || project.demo_url"
+                target="_blank"
+              >
                 جزئیات
               </v-btn>
             </v-card-actions>
@@ -82,15 +86,15 @@ import { useProjectsStore } from "@/stores/projects";
 
 const projectsStore = useProjectsStore();
 
-// load featured projects on mount
+// load all projects on mount
 onMounted(async () => {
-  await projectsStore.loadFeaturedProjects().catch(() => {});
+  await projectsStore.loadProjects().catch(() => {});
   console.log("Featured projects:", projectsStore.featuredProjects);
 });
 
 // reload projects
 function reloadProjects() {
-  projectsStore.loadFeaturedProjects().catch(() => {});
+  projectsStore.loadProjects().catch(() => {});
 }
 
 /* Helper: resolve relative media URL to absolute using VITE_API_URL

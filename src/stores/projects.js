@@ -26,42 +26,18 @@ export const useProjectsStore = defineStore("projects", {
         const data = await response.json();
         this.projects = Array.isArray(data) ? [...data] : data ? [data] : [];
         this.totalCount = this.projects.length;
+        // فیلتر پروژه‌های ویژه بعد از لود
+        this.featuredProjects = this.projects.filter((p) => p.is_featured);
         console.log(
           "Projects loaded:",
           this.projects.length,
-          "Total Count:",
-          this.totalCount
+          "Featured projects:",
+          this.featuredProjects.length
         );
       } catch (err) {
         this.error = err.message;
         this.projects = [];
         this.totalCount = 0;
-      } finally {
-        this.loading = false;
-      }
-    },
-    async loadFeaturedProjects() {
-      this.loading = true;
-      this.error = null;
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/projects/?is_featured=true`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("خطا در API: " + response.status);
-        const data = await response.json();
-        this.featuredProjects = Array.isArray(data)
-          ? data.filter((p) => p.is_featured)
-          : data
-          ? [data]
-          : [];
-        console.log("Featured projects loaded:", this.featuredProjects.length);
-      } catch (err) {
-        this.error = err.message;
         this.featuredProjects = [];
       } finally {
         this.loading = false;
