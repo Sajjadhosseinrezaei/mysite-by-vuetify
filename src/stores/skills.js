@@ -35,7 +35,7 @@ export const useSkillsStore = defineStore("skills", () => {
     error.value = false;
     errorMessage.value = "";
     try {
-      const res = await api.get("/api/skills/", {
+      const res = await api.get("/skills/", {
         params: page && page_size ? { page, page_size } : {}, // فقط اگه پارامترها داده شده اعمال کن
       });
       const data = res.data ?? res;
