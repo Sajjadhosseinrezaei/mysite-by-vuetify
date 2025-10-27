@@ -26,7 +26,7 @@
 
       <v-row dense justify="center">
         <v-col
-          v-for="project in featuredProjects"
+          v-for="project in projectsStore.featuredProjects"
           :key="project.id"
           cols="12"
           sm="6"
@@ -34,7 +34,7 @@
         >
           <v-card class="project-card hover-scale">
             <v-img
-              :src="project.image"
+              :src="resolveImageUrl(project.image)"
               height="180"
               class="rounded-top"
             ></v-img>
@@ -49,6 +49,21 @@
         </v-col>
       </v-row>
 
+      <!-- Loading -->
+      <div v-if="projectsStore.loading" class="text-center my-4">
+        <v-progress-circular indeterminate color="primary" size="28" />
+      </div>
+
+      <!-- Error -->
+      <div v-if="projectsStore.error" class="text-center my-4">
+        <v-alert type="error" variant="outlined">{{
+          projectsStore.error
+        }}</v-alert>
+        <v-btn color="primary" @click="reloadProjects" class="mt-2">
+          تلاش مجدد
+        </v-btn>
+      </div>
+
       <!-- See All Projects -->
       <div class="text-center mt-8">
         <v-btn color="secondary" variant="outlined" href="/projects">
@@ -62,7 +77,32 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { useProjectsStore } from "@/stores/projects";
+
+const projectsStore = useProjectsStore();
+
+// load featured projects on mount
+onMounted(async () => {
+  await projectsStore.loadFeaturedProjects().catch(() => {});
+  console.log("Featured projects:", projectsStore.featuredProjects);
+});
+
+// reload projects
+function reloadProjects() {
+  projectsStore.loadFeaturedProjects().catch(() => {});
+}
+
+/* Helper: resolve relative media URL to absolute using VITE_API_URL
+   If the backend already returns absolute URLs (http(s)://...) this returns them unchanged.
+*/
+function resolveImageUrl(pathOrUrl) {
+  if (!pathOrUrl) return "";
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  const api = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  const base = api.replace(/\/api\/?$/, "");
+  return `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
+}
 </script>
 
 <style scoped>
