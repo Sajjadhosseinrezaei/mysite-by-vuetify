@@ -101,7 +101,7 @@ export const useSkillsStore = defineStore("skills", () => {
     errorMessage.value = "";
     try {
       // سعی برای فیلتر سرور‌ساید
-      const res = await api.get("/api/skills/", {
+      const res = await api.get("/skills/", {
         params: { is_featured: true },
       });
       const data = res.data ?? res;
@@ -143,7 +143,7 @@ export const useSkillsStore = defineStore("skills", () => {
     error.value = false;
     errorMessage.value = "";
     try {
-      const res = await api.get(`/api/skills/${id}/`);
+      const res = await api.get(`/skills/${id}/`);
       const data = res.data ?? res;
       currentSkill.value = data;
       console.log("Skill loaded:", data); // دیباگ
