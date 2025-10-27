@@ -74,7 +74,7 @@ export const useSkillsStore = defineStore("skills", () => {
     error.value = false;
     errorMessage.value = "";
     try {
-      const res = await api.get("/api/skills/"); // بدون پارامتر صفحه‌بندی
+      const res = await api.get("/skills/"); // بدون پارامتر صفحه‌بندی
       const data = res.data ?? res;
       skills.value = Array.isArray(data.results) ? data.results : data;
       total.value = skills.value.length; // چون صفحه‌بندی نیست، طول لیست رو می‌گیریم
