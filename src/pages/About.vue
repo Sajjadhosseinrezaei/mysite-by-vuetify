@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="about-page pa-0 overflow-hidden">
-    <!-- Hero Section - کوتاه و overlap -->
+    <!-- Hero Section -->
     <section class="hero-section position-relative overflow-hidden">
       <div class="hero-bg"></div>
 
@@ -39,7 +39,7 @@
       <v-btn color="primary" class="mt-4" @click="reloadAll">تلاش مجدد</v-btn>
     </v-container>
 
-    <!-- Main Content - با overlap -->
+    <!-- Main Content -->
     <v-container v-if="profileStore.profile" class="content-section py-16">
       <v-row justify="center">
         <!-- Bio -->
@@ -101,10 +101,12 @@
             <div>
               <h3 class="skills-title mb-5">مهارت‌های اصلی</h3>
 
+              <!-- Loading -->
               <div v-if="skillsStore.loading" class="text-center my-6">
                 <v-progress-circular indeterminate size="40" />
               </div>
 
+              <!-- Error -->
               <div v-if="skillsStore.error" class="text-center my-6">
                 <v-alert type="error" variant="outlined" class="mx-auto" max-width="400">
                   {{ skillsStore.error }}
@@ -112,10 +114,11 @@
                 <v-btn size="small" @click="skillsStore.loadFeatured(true)">تلاش مجدد</v-btn>
               </div>
 
+              <!-- Skills List -->
               <div v-else>
                 <v-row dense>
                   <v-col
-                    v-for="skill in displaySkills"
+                    v-for="skill in skillsStore.featured"
                     :key="skill.id"
                     cols="12"
                     class="mb-4"
@@ -160,19 +163,42 @@
         </v-col>
       </v-row>
 
-      <!-- Technologies -->
+      <!-- Technologies from Server -->
       <div class="mt-16 text-center">
         <h2 class="section-title mb-8">تکنولوژی‌های مسلط</h2>
-        <v-slide-x-transition group>
+
+        <!-- Loading -->
+        <div v-if="techStore.loading" class="text-center py-6">
+          <v-progress-circular indeterminate size="48" color="primary" />
+        </div>
+
+        <!-- Error -->
+        <div v-if="techStore.error" class="text-center py-6">
+          <v-alert type="error" variant="outlined" class="mx-auto" max-width="500">
+            {{ techStore.error }}
+          </v-alert>
+          <v-btn size="small" @click="techStore.loadTechnologies(true)">تلاش مجدد</v-btn>
+        </div>
+
+        <!-- Technologies -->
+        <v-slide-x-transition group v-else>
           <v-chip
-            v-for="tech in resolvedTechnologies"
-            :key="tech.name"
+            v-for="tech in techStore.technologies"
+            :key="tech.id"
             outlined
-            color="primary"
+            :color="tech.color"
             class="tech-chip ma-2 pa-4"
             size="large"
+            :style="{ borderColor: tech.color }"
           >
-            <v-icon left>{{ tech.icon }}</v-icon>
+            <!-- آیکون Font Awesome یا MDI -->
+            <v-icon v-if="tech.icon" left :style="{ color: tech.color }">
+              {{ tech.icon }}
+            </v-icon>
+            <!-- تصویر آیکون (در صورت وجود) -->
+            <v-avatar v-else-if="tech.icon_image" size="24" class="me-2">
+              <v-img :src="resolveImageUrl(tech.icon_image)" />
+            </v-avatar>
             {{ tech.name }}
           </v-chip>
         </v-slide-x-transition>
@@ -185,34 +211,20 @@
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useSkillsStore } from "@/stores/skills";
+import { useTechnologiesStore } from "@/stores/technologies";
+import { storeToRefs } from "pinia";
 
 const profileStore = useProfileStore();
 const skillsStore = useSkillsStore();
+const techStore = useTechnologiesStore();
 
 const animatedLevels = ref({});
 
 /* ------------------------------------------------------------------ */
-/*  displaySkills اول تعریف شود (قبل از watch)                        */
-/* ------------------------------------------------------------------ */
-const localSkills = [
-  { id: "s1", name: "Vue.js", level: 92, description: "فریم‌ورک پیشرو جاوااسکریپت", icon_class: "mdi-vuejs" },
-  { id: "s2", name: "Vuetify", level: 88, description: "کامپوننت‌های حرفه‌ای Vue", icon_class: "mdi-vuetify" },
-  { id: "s3", name: "Django REST", level: 85, description: "ساخت API قدرتمند", icon_class: "mdi-language-python" },
-  { id: "s4", name: "JavaScript", level: 95, description: "ES6+ و فراتر", icon_class: "mdi-language-javascript" },
-  { id: "s5", name: "Responsive Design", level: 90, description: "طراحی واکنش‌گرا", icon_class: "mdi-responsive" },
-];
-
-const displaySkills = computed(() => {
-  if (skillsStore.featured.length > 0) return skillsStore.featured;
-  if (profileStore.profile?.skills?.length > 0) return profileStore.profile.skills;
-  return localSkills;
-});
-
-/* ------------------------------------------------------------------ */
-/*  watch بعد از displaySkills + immediate                           */
+/*  انیمیشن سطوح مهارت‌ها                                           */
 /* ------------------------------------------------------------------ */
 watch(
-  displaySkills,
+  () => skillsStore.featured,
   (newSkills) => {
     animatedLevels.value = {};
     nextTick(() => {
@@ -233,30 +245,15 @@ onMounted(async () => {
   await Promise.all([
     profileStore.loadProfile().catch(() => {}),
     skillsStore.loadFeatured().catch(() => {}),
+    techStore.loadTechnologies().catch(() => {}),
   ]);
 });
 
 /* ------------------------------------------------------------------ */
-/*  بقیه computed ها                                                 */
+/*  computed ها                                                       */
 /* ------------------------------------------------------------------ */
 const hasSocialLinks = computed(() => {
   return profileStore.profile?.social_links && Object.values(profileStore.profile.social_links).some(Boolean);
-});
-
-const shouldShowSkills = computed(() => !skillsStore.loading && !skillsStore.error);
-
-const resolvedTechnologies = computed(() => {
-  return profileStore.profile?.technologies?.length > 0
-    ? profileStore.profile.technologies
-    : [
-        { name: "Vue 3", icon: "mdi-vuejs" },
-        { name: "Vuetify 3", icon: "mdi-vuetify" },
-        { name: "Django", icon: "mdi-language-python" },
-        { name: "PostgreSQL", icon: "mdi-database" },
-        { name: "Docker", icon: "mdi-docker" },
-        { name: "Git", icon: "mdi-git" },
-        { name: "Tailwind", icon: "mdi-tailwind" },
-      ];
 });
 
 /* ------------------------------------------------------------------ */
@@ -277,6 +274,7 @@ function socialIcon(key) {
 function reloadAll() {
   profileStore.loadProfile(true);
   skillsStore.loadFeatured(true);
+  techStore.loadTechnologies(true);
 }
 
 function resolveImageUrl(pathOrUrl) {
@@ -304,7 +302,7 @@ function getSkillColor(level) {
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
 .about-page { font-family: 'Vazirmatn', sans-serif; }
 
-/* Hero - کوتاه و overlap */
+/* Hero */
 .hero-section {
   min-height: 65vh;
   max-height: 500px;
@@ -328,7 +326,6 @@ function getSkillColor(level) {
 }
 .z-10 { z-index: 10; }
 
-/* نام و عنوان */
 .hero-name {
   font-size: 3.5rem;
   font-weight: 700;
@@ -347,7 +344,6 @@ function getSkillColor(level) {
 .text-shadow { text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 .text-shadow-sm { text-shadow: 0 1px 5px rgba(0,0,0,0.3); }
 
-/* تصویر پروفایل */
 .profile-avatar {
   margin-top: 2rem;
   border: 5px solid rgba(255,255,255,0.25) !important;
@@ -436,6 +432,7 @@ function getSkillColor(level) {
   font-weight: 500;
   border-radius: 50px !important;
   transition: all 0.3s ease;
+  border-width: 2px !important;
 }
 .tech-chip:hover {
   background: rgba(0,188,212,0.1);
