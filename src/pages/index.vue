@@ -14,7 +14,6 @@
                   توسعه‌دهنده بک‌اند پایتون و جنگو<br>
                   <span class="highlight">سیستم‌های مقیاس‌پذیر</span> و <span class="highlight">امن</span>
                 </p>
-                <!-- دکمه حذف شد -->
               </div>
             </v-fade-transition>
           </v-col>
@@ -51,41 +50,46 @@
               md="4"
               class="mb-6"
             >
-              <v-card
-                class="project-card elevation-6 h-100 d-flex flex-column"
-                :href="project.link"
-                target="_blank"
-                link
-              >
-                <v-img
-                  :src="resolveImageUrl(project.image)"
-                  height="200"
-                  cover
-                  class="rounded-top"
+              <!-- کارت قابل کلیک → به جزئیات -->
+              <router-link :to="`/projects/${project.id}`" class="project-link">
+                <v-card
+                  class="project-card elevation-6 h-100 d-flex flex-column"
+                  hover
                 >
-                  <template #placeholder>
-                    <v-skeleton-loader type="image" />
-                  </template>
-                </v-img>
+                  <!-- تصویر -->
+                  <v-img
+                    :src="resolveImageUrl(project.featured_image_url)"
+                    height="200"
+                    cover
+                    class="rounded-top"
+                  >
+                    <template #placeholder>
+                      <v-skeleton-loader type="image" class="h-100" />
+                    </template>
+                  </v-img>
 
-                <v-card-title class="text-h6 font-weight-bold">
-                  {{ project.title }}
-                </v-card-title>
+                  <!-- عنوان -->
+                  <v-card-title class="text-h6 font-weight-bold pt-4 px-4">
+                    {{ project.title }}
+                  </v-card-title>
 
-                <v-card-text class="flex-grow-1 text-body-2">
-                  {{ project.description }}
-                </v-card-text>
+                  <!-- توضیحات کوتاه -->
+                  <v-card-text class="flex-grow-1 text-body-2 px-4 pb-2">
+                    {{ project.short_description || "بدون توضیح کوتاه" }}
+                  </v-card-text>
 
-                <v-card-actions class="mt-auto">
-                  <v-chip size="small" color="primary" variant="outlined">
-                    جزئیات
-                  </v-chip>
-                </v-card-actions>
-              </v-card>
+                  <!-- دکمه جزئیات -->
+                  <v-card-actions class="mt-auto pb-4 px-4">
+                    <v-chip size="small" color="primary" variant="outlined">
+                      جزئیات
+                    </v-chip>
+                  </v-card-actions>
+                </v-card>
+              </router-link>
             </v-col>
           </v-row>
 
-          <!-- See All Button - فقط یک بار -->
+          <!-- دکمه مشاهده همه -->
           <div class="text-center mt-10">
             <v-btn
               color="secondary"
@@ -111,8 +115,13 @@ import { storeToRefs } from "pinia";
 const projectsStore = useProjectsStore();
 const { projects, loading, error } = storeToRefs(projectsStore);
 
+/* ------------------------------------------------------------------ */
+/*  فقط پروژه‌های ویژه (is_featured) و تا 3 تا                     */
+/* ------------------------------------------------------------------ */
 const featuredProjects = computed(() => {
-  return projectsStore.getFeaturedProjects.slice(0, 3);
+  return projects.value
+    .filter(p => p.is_featured)
+    .slice(0, 3);
 });
 
 onMounted(async () => {
@@ -120,10 +129,10 @@ onMounted(async () => {
 });
 
 /* ------------------------------------------------------------------ */
-/*  Resolve media URLs (same as About.vue)                            */
+/*  Resolve media URLs (برای عکس‌های نسبی)                          */
 /* ------------------------------------------------------------------ */
 function resolveImageUrl(pathOrUrl) {
-  if (!pathOrUrl) return "";
+  if (!pathOrUrl) return "https://via.placeholder.com/800x450/1a1a1a/ffffff?text=No+Image";
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
   const api = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const base = api.replace(/\/api\/?$/, "");
@@ -136,7 +145,7 @@ function resolveImageUrl(pathOrUrl) {
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
 .home-page { font-family: 'Vazirmatn', sans-serif; }
 
-/* Hero - بدون دکمه */
+/* Hero */
 .hero-section {
   min-height: 70vh;
   max-height: 600px;
@@ -160,7 +169,6 @@ function resolveImageUrl(pathOrUrl) {
 }
 .z-10 { z-index: 10; }
 
-/* عنوان‌ها */
 .hero-title {
   font-size: 3.8rem;
   font-weight: 700;
@@ -177,10 +185,7 @@ function resolveImageUrl(pathOrUrl) {
   margin: 16px auto 0;
   line-height: 1.7;
 }
-.highlight {
-  color: #00bcd4;
-  font-weight: 500;
-}
+.highlight { color: #00bcd4; font-weight: 500; }
 .text-shadow { text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 .text-shadow-sm { text-shadow: 0 1px 5px rgba(0,0,0,0.3); }
 
@@ -208,6 +213,14 @@ function resolveImageUrl(pathOrUrl) {
   border-radius: 2px;
 }
 
+/* لینک پروژه */
+.project-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
 /* کارت پروژه */
 .project-card {
   background: #1a1a1a;
@@ -215,6 +228,7 @@ function resolveImageUrl(pathOrUrl) {
   overflow: hidden;
   transition: all 0.3s ease;
   height: 100%;
+  cursor: pointer;
 }
 .project-card:hover {
   transform: translateY(-8px);
@@ -233,12 +247,13 @@ function resolveImageUrl(pathOrUrl) {
 .project-card .v-card-text {
   color: rgba(255, 255, 255, 0.75);
   padding: 0 16px 16px;
+  line-height: 1.6;
 }
 .project-card .v-card-actions {
   padding: 0 16px 16px;
 }
 
-/* دکمه "مشاهده همه" - فقط یک بار */
+/* دکمه‌ها */
 .v-btn {
   border-radius: 50px;
   text-transform: none;
