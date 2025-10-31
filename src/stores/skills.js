@@ -1,148 +1,119 @@
 // src/stores/skills.js
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import api from '@/api/axios' // باید وجود داشته باشه: baseURL از env گرفته شده
+import { ref, computed } from 'vue'
+import api from '@/api/axios'
 
 export const useSkillsStore = defineStore('skills', () => {
-  const skills = ref([])        // تمام آیتم‌های دریافت‌شده (از current page)
-  const featured = ref([])      // کش جدا برای featured (اختیاری)
-  const total = ref(0)          // total count (from paginated response)
+  // === State ===
+  const skills = ref([])      // همه مهارت‌ها
+  const featured = ref([])    // مهارت‌های ویژه (کش شده)
   const loading = ref(false)
-  const error = ref(false)
-  const errorMessage = ref('')
+  const error = ref(null)
 
-  // metadata برای pagination (اگر نیاز داشتی نگه میداریم)
-  const currentPage = ref(1)
-  const pageSize = ref(20) // پیش‌فرض، می‌تونی 9 بذاری یا هرچیزی
+  // === Getters ===
+  const allSkills = computed(() => skills.value)
+  const featuredSkills = computed(() => featured.value)
+  const isEmpty = computed(() => skills.value.length === 0 && !loading.value)
 
-  /**
-   * loadSkills(page=1, page_size=20, options={force:false})
-   * - بازمی‌گرداند: { results, count } یا می‌تونه خطا throw کنه
-   */
-  async function loadSkills(page = 1, page_size = 20, options = {}) {
-    if (loading.value) return
-    // اگر از قبل داده موجوده و force=false و صفحه همون صفحه هست، دوباره نخون
-    if (!options.force && skills.value.length && currentPage.value === page && pageSize.value === page_size) {
-      return { results: skills.value, count: total.value }
-    }
+  // === Actions ===
 
-    loading.value = true
-    error.value = false
-    errorMessage.value = ''
-    try {
-      const res = await api.get('/skills/', { params: { page, page_size } })
-      const data = res.data ?? res
-      // data.results expected
-      skills.value = Array.isArray(data.results) ? data.results : []
-      total.value = data.count ?? skills.value.length
-      currentPage.value = page
-      pageSize.value = page_size
-      return { results: skills.value, count: total.value }
-    } catch (err) {
-      console.error('Failed to load skills', err)
-      error.value = true
-      errorMessage.value = err.response?.data || err.message || 'خطا در دریافت مهارت‌ها'
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
-  /**
-   * loadAllSkills(options={force:false})
-   * اگر بخوای همهٔ صفحات رو یکجا بیاره (مراقب باش برای تعداد خیلی زیاد)
-   */
-  async function loadAllSkills(options = {}) {
-    if (!options.force && skills.value.length && total.value && skills.value.length >= total.value) {
+  /** بارگذاری همه مهارت‌ها (یک بار) */
+  async function loadSkills({ force = false } = {}) {
+    if (!force && skills.value.length > 0) {
       return skills.value
     }
 
     loading.value = true
-    error.value = false
-    errorMessage.value = ''
-    try {
-      const page_size = 100 // مقدار زیادی برای اغلب پروژه‌ها کفایت می‌کنه
-      const res = await api.get('/skills/', { params: { page: 1, page_size } })
-      const data = res.data ?? res
-      const all = Array.isArray(data.results) ? data.results : []
-      skills.value = all
-      total.value = data.count ?? all.length
-      return skills.value
-    } catch (err) {
-      console.error('Failed to load all skills', err)
-      error.value = true
-      errorMessage.value = err.response?.data || err.message || 'خطا'
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
+    error.value = null
 
-  /**
-   * loadFeatured() — فقط featured skills
-   * از سرور می‌خواهیم اگر endpoint فیلتر برای featured نداره، ما روی نتایج client-side فیلتر می‌کنیم
-   */
-  async function loadFeatured(options = {}) {
-    // اگر cached موجود و force=false برگردون
-    if (!options.force && featured.value.length) return featured.value
-
-    // ابتدا سعی می‌کنیم یک درخواست با فیلتر ارسال کنیم (در صورتیکه API از ?is_featured=true پشتیبانی کنه)
-    loading.value = true
-    error.value = false
-    errorMessage.value = ''
     try {
-      // try server-side filter first
-      const res = await api.get('/skills/', { params: { is_featured: true, page: 1, page_size: 100 } })
-      const data = res.data ?? res
-      if (Array.isArray(data.results) && data.results.length) {
-        featured.value = data.results
+      const res = await api.get('/skills/')
+      const data = res.data
+
+      // پشتیبانی از دو حالت: آرایه مستقیم یا { results: [...] }
+      if (Array.isArray(data)) {
+        skills.value = data
+      } else if (data && Array.isArray(data.results)) {
+        skills.value = data.results
       } else {
-        // fallback: load a page/all and filter client-side
-        const all = await loadAllSkills({ force: options.force })
-        featured.value = all.filter(s => s.is_featured)
+        throw new Error('ساختار داده نامعتبر است')
       }
-      return featured.value
+
+      return skills.value
     } catch (err) {
-      console.warn('Server-side featured filter failed, falling back to client-side', err)
-      // fallback to client-side
-      try {
-        const all = await loadAllSkills({ force: options.force })
-        featured.value = all.filter(s => s.is_featured)
-        return featured.value
-      } catch (inner) {
-        console.error(inner)
-        error.value = true
-        errorMessage.value = inner.message || 'خطا'
-        throw inner
-      }
+      error.value = err.response?.data?.detail || err.message || 'خطا در دریافت مهارت‌ها'
+      console.error('[Skills Store] loadSkills error:', err)
+      throw err
     } finally {
       loading.value = false
     }
   }
 
+  /** بارگذاری مهارت‌های ویژه */
+  async function loadFeatured({ force = false } = {}) {
+    if (!force && featured.value.length > 0) {
+      return featured.value
+    }
+
+    try {
+      // 1. سعی در فیلتر سرور
+      const res = await api.get('/skills/', { params: { is_featured: true } })
+      const data = res.data
+
+      if (Array.isArray(data) && data.length > 0) {
+        featured.value = data
+        return featured.value
+      }
+      if (data?.results && data.results.length > 0) {
+        featured.value = data.results
+        return featured.value
+      }
+    } catch (_) {
+      // نادیده گرفتن خطا — ادامه به client-side
+    }
+
+    // 2. fallback: همه را بگیر و فیلتر کن
+    const all = await loadSkills({ force: true })
+    featured.value = all.filter(s => s.is_featured)
+    return featured.value
+  }
+
+  /** جستجو در مهارت‌ها (client-side) */
+  function searchSkills(query = '') {
+    if (!query.trim()) return skills.value
+    const q = query.toLowerCase()
+    return skills.value.filter(skill =>
+      skill.name.toLowerCase().includes(q) ||
+      skill.description.toLowerCase().includes(q)
+    )
+  }
+
+  /** دریافت مهارت با ID */
+  function getSkillById(id) {
+    return skills.value.find(s => s.id === id)
+  }
+
+  /** ریست استور */
   function clear() {
     skills.value = []
     featured.value = []
-    total.value = 0
-    currentPage.value = 1
-    pageSize.value = 20
-    loading.value = false
-    error.value = false
-    errorMessage.value = ''
+    error.value = null
   }
 
+  // === Return ===
   return {
-    skills,
-    featured,
-    total,
+    // State
+    skills: allSkills,
+    featured: featuredSkills,
     loading,
     error,
-    errorMessage,
-    currentPage,
-    pageSize,
+    isEmpty,
+
+    // Actions
     loadSkills,
-    loadAllSkills,
     loadFeatured,
+    searchSkills,
+    getSkillById,
     clear,
   }
 })

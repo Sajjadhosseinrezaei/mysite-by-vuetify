@@ -1,274 +1,284 @@
 <template>
-  <v-container fluid class="about-page pa-0">
-    <!-- Hero Section -->
-    <v-container
-      v-if="profileStore.profile"
-      class="hero-section d-flex flex-column justify-center align-center text-center"
-      fluid
-    >
-      <h1 class="hero-name">{{ profileStore.profile.name }}</h1>
-      <p class="hero-title">{{ profileStore.profile.title }}</p>
+  <v-container fluid class="about-page pa-0 overflow-hidden">
+    <!-- Hero Section - کوتاه و overlap -->
+    <section class="hero-section position-relative overflow-hidden">
+      <div class="hero-bg"></div>
 
-      <!-- Profile Image overlapping hero -->
-      <v-avatar size="180" class="mx-auto elevation-3 profile-avatar">
-        <v-img
-          :src="profileStore.profile.profile_image"
-          alt="Profile picture"
-          cover
-          class="profile-image"
-        />
-      </v-avatar>
+      <v-container class="h-100 position-relative z-10">
+        <v-row align="center" class="h-100">
+          <v-col cols="12" class="text-center">
+            <v-fade-transition appear>
+              <div v-if="profileStore.profile">
+                <h1 class="hero-name text-shadow">{{ profileStore.profile.name }}</h1>
+                <p class="hero-title text-shadow-sm">{{ profileStore.profile.title }}</p>
+
+                <v-avatar size="160" class="profile-avatar elevation-12 mt-6 animate-float">
+                  <v-img
+                    :src="profileStore.profile.profile_image"
+                    alt="Profile"
+                    cover
+                    class="border-4 border-white"
+                  />
+                </v-avatar>
+              </div>
+            </v-fade-transition>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
+    <!-- Loading & Error (Profile) -->
+    <v-container v-if="profileStore.loading && !profileStore.profile" class="text-center py-16">
+      <v-progress-circular indeterminate size="64" color="primary" />
     </v-container>
 
-    <!-- Loading -->
-    <v-container
-      v-if="profileStore.loading && !profileStore.profile"
-      class="text-center my-10"
-    >
-      <v-progress-circular indeterminate color="primary" size="40" />
+    <v-container v-if="profileStore.error" class="text-center py-16">
+      <v-alert type="error" variant="tonal" class="mx-auto" max-width="500">
+        {{ profileStore.errorMessage }}
+      </v-alert>
+      <v-btn color="primary" class="mt-4" @click="reloadAll">تلاش مجدد</v-btn>
     </v-container>
 
-    <!-- Error -->
-    <v-container v-if="profileStore.error" class="text-center my-10">
-      <v-alert type="error" variant="tonal">{{
-        profileStore.errorMessage
-      }}</v-alert>
-      <div class="mt-3">
-        <v-btn color="primary" @click="reloadAll">تلاش مجدد</v-btn>
-      </div>
-    </v-container>
-
-    <!-- Bio & Skills Section -->
-    <v-container v-if="profileStore.profile" class="bio-section mt-20">
-      <v-row dense align="center" justify="center">
+    <!-- Main Content - با overlap -->
+    <v-container v-if="profileStore.profile" class="content-section py-16">
+      <v-row justify="center">
         <!-- Bio -->
         <v-col cols="12" md="6">
-          <h2 class="section-title mb-4">درباره من</h2>
-          <p class="about-text">{{ profileStore.profile.bio }}</p>
+          <v-fade-transition>
+            <div>
+              <h2 class="section-title mb-5">درباره من</h2>
+              <p class="about-text">{{ profileStore.profile.bio }}</p>
 
-          <!-- Contact Info -->
-          <div class="contact-info mt-5">
-            <p v-if="profileStore.profile.email">
-              <v-icon size="18">mdi-email</v-icon>
-              {{ profileStore.profile.email }}
-            </p>
-            <p v-if="profileStore.profile.phone">
-              <v-icon size="18">mdi-phone</v-icon>
-              {{ profileStore.profile.phone }}
-            </p>
-            <p v-if="profileStore.profile.location">
-              <v-icon size="18">mdi-map-marker</v-icon>
-              {{ profileStore.profile.location }}
-            </p>
-          </div>
+              <div class="contact-info mt-6">
+                <div v-if="profileStore.profile.email" class="contact-item">
+                  <v-icon>mdi-email</v-icon>
+                  <span>{{ profileStore.profile.email }}</span>
+                </div>
+                <div v-if="profileStore.profile.phone" class="contact-item">
+                  <v-icon>mdi-phone</v-icon>
+                  <span>{{ profileStore.profile.phone }}</span>
+                </div>
+                <div v-if="profileStore.profile.location" class="contact-item">
+                  <v-icon>mdi-map-marker</v-icon>
+                  <span>{{ profileStore.profile.location }}</span>
+                </div>
+              </div>
 
-          <v-btn
-            v-if="profileStore.profile.resume"
-            :href="resolveImageUrl(profileStore.profile.resume)"
-            target="_blank"
-            color="primary"
-            class="mt-4"
-            prepend-icon="mdi-file-pdf-box"
-          >
-            دانلود رزومه
-          </v-btn>
+              <v-btn
+                v-if="profileStore.profile.resume"
+                :href="resolveImageUrl(profileStore.profile.resume)"
+                target="_blank"
+                color="primary"
+                size="large"
+                class="mt-6 resume-btn"
+                prepend-icon="mdi-file-pdf-box"
+              >
+                دانلود رزومه
+              </v-btn>
 
-          <!-- Social Links -->
-          <div v-if="hasSocialLinks" class="social-links mt-6">
-            <v-btn
-              v-for="(url, key) in profileStore.profile.social_links"
-              :key="key"
-              v-if="url"
-              :href="url"
-              target="_blank"
-              icon
-              class="mx-1 social-btn"
-              :aria-label="key"
-            >
-              <v-icon>{{ socialIcon(key) }}</v-icon>
-            </v-btn>
-          </div>
+              <div v-if="hasSocialLinks" class="social-links mt-8">
+                <v-btn
+                  v-for="(url, key) in profileStore.profile.social_links"
+                  :key="key"
+                  v-if="url"
+                  :href="url"
+                  target="_blank"
+                  icon
+                  size="large"
+                  class="social-btn mx-1"
+                  :aria-label="key"
+                >
+                  <v-icon>{{ socialIcon(key) }}</v-icon>
+                </v-btn>
+              </div>
+            </div>
+          </v-fade-transition>
         </v-col>
 
-        <!-- Skills -->
         <!-- Skills -->
         <v-col cols="12" md="6">
-          <h3 class="skills-title mt-6 mb-3">مهارت‌ها</h3>
+          <v-fade-transition>
+            <div>
+              <h3 class="skills-title mb-5">مهارت‌های اصلی</h3>
 
-          <div v-if="skillsStore.loading" class="text-center my-4">
-            <v-progress-circular indeterminate size="28" />
-          </div>
+              <div v-if="skillsStore.loading" class="text-center my-6">
+                <v-progress-circular indeterminate size="40" />
+              </div>
 
-          <div v-if="skillsStore.error" class="text-center my-4">
-            <v-alert type="error" variant="outlined">{{
-              skillsStore.errorMessage
-            }}</v-alert>
-          </div>
+              <div v-if="skillsStore.error" class="text-center my-6">
+                <v-alert type="error" variant="outlined" class="mx-auto" max-width="400">
+                  {{ skillsStore.error }}
+                </v-alert>
+                <v-btn size="small" @click="skillsStore.loadFeatured(true)">تلاش مجدد</v-btn>
+              </div>
 
-          <v-row dense v-else>
-            <v-col
-              cols="12"
-              v-for="skill in displaySkills"
-              :key="skill.id"
-              class="mb-4"
-            >
-              <v-tooltip location="top" transition="fade-transition">
-                <template #activator="{ props }">
-                  <div v-bind="props" class="skill-item">
-                    <div class="skill-row">
-                      <div class="skill-name">{{ skill.name }}</div>
-                      <div class="skill-level">{{ skill.level }}%</div>
-                    </div>
-                    <v-progress-linear
-                      :value="skill.level"
-                      height="12"
-                      rounded
-                      color="primary"
-                      striped
-                    />
-                  </div>
-                </template>
-                <span v-if="skill.description">{{ skill.description }}</span>
-              </v-tooltip>
-            </v-col>
-          </v-row>
+              <div v-else>
+                <v-row dense>
+                  <v-col
+                    v-for="skill in displaySkills"
+                    :key="skill.id"
+                    cols="12"
+                    class="mb-4"
+                  >
+                    <v-card
+                      class="skill-card pa-4 elevation-3"
+                      :color="getSkillColor(skill.level)"
+                      variant="tonal"
+                    >
+                      <div class="d-flex align-center justify-space-between mb-2">
+                        <div class="d-flex align-center">
+                          <v-icon
+                            v-if="skill.icon_class && isValidIcon(skill.icon_class)"
+                            :icon="skill.icon_class"
+                            size="22"
+                            class="me-3"
+                          />
+                          <span class="skill-name font-weight-bold">{{ skill.name }}</span>
+                        </div>
+                        <v-chip size="small" color="white" text-color="black">
+                          {{ skill.level }}%
+                        </v-chip>
+                      </div>
+
+                      <v-progress-linear
+                        :model-value="animatedLevels[skill.id] || 0"
+                        height="8"
+                        rounded
+                        color="white"
+                        bg-color="rgba(255,255,255,0.2)"
+                        class="skill-progress"
+                      />
+                      <small class="text-caption mt-1 d-block text-white-opacity">
+                        {{ skill.description || "مهارت حرفه‌ای" }}
+                      </small>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </div>
+            </div>
+          </v-fade-transition>
         </v-col>
       </v-row>
-    </v-container>
 
-    <!-- Technologies Section -->
-    <v-container v-if="profileStore.profile" class="mt-16 text-center">
-      <h2 class="section-title mb-6">تکنولوژی‌ها</h2>
-      <v-row dense justify="center" align="center">
-        <v-col
-          cols="auto"
-          v-for="tech in resolvedTechnologies"
-          :key="tech.name"
-          class="mb-4"
-        >
-          <v-chip outlined color="primary" class="tech-chip hover-scale">
+      <!-- Technologies -->
+      <div class="mt-16 text-center">
+        <h2 class="section-title mb-8">تکنولوژی‌های مسلط</h2>
+        <v-slide-x-transition group>
+          <v-chip
+            v-for="tech in resolvedTechnologies"
+            :key="tech.name"
+            outlined
+            color="primary"
+            class="tech-chip ma-2 pa-4"
+            size="large"
+          >
             <v-icon left>{{ tech.icon }}</v-icon>
             {{ tech.name }}
           </v-chip>
-        </v-col>
-      </v-row>
+        </v-slide-x-transition>
+      </div>
     </v-container>
   </v-container>
 </template>
 
 <script setup>
-/**
- * About.vue — connected to Pinia:
- *  - profileStore: from src/stores/profile.js (must exist)
- *  - skillsStore: from src/stores/skills.js (must exist; implementation I provided earlier)
- *
- * Utilities:
- *  - resolveImageUrl: converts relative media paths to absolute using VITE_API_URL fallback
- */
-
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref, watch, nextTick } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useSkillsStore } from "@/stores/skills";
 
 const profileStore = useProfileStore();
 const skillsStore = useSkillsStore();
 
-// load both profile and featured skills on mount
-onMounted(async () => {
-  // don't await them serially — run in parallel for speed
-  profileStore.loadProfile().catch(() => {});
-  skillsStore.loadFeatured().catch(() => {});
-});
+const animatedLevels = ref({});
 
-// show social buttons only if any link exists
-const hasSocialLinks = computed(() => {
-  return (
-    profileStore.profile &&
-    profileStore.profile.social_links &&
-    Object.values(profileStore.profile.social_links).some(Boolean)
-  );
-});
-
-// display skills: prefer featured -> profile.skills -> skillsStore.skills -> fallback local list
+/* ------------------------------------------------------------------ */
+/*  displaySkills اول تعریف شود (قبل از watch)                        */
+/* ------------------------------------------------------------------ */
 const localSkills = [
-  { id: "s-local-vue", name: "Vue.js", level: 90, description: "" },
-  { id: "s-local-vuetify", name: "Vuetify", level: 85, description: "" },
-  {
-    id: "s-local-drf",
-    name: "Django REST Framework",
-    level: 80,
-    description: "",
-  },
-  { id: "s-local-js", name: "JavaScript", level: 95, description: "" },
-  { id: "s-local-html", name: "HTML & CSS", level: 95, description: "" },
-  {
-    id: "s-local-responsive",
-    name: "Responsive Design",
-    level: 90,
-    description: "",
-  },
+  { id: "s1", name: "Vue.js", level: 92, description: "فریم‌ورک پیشرو جاوااسکریپت", icon_class: "mdi-vuejs" },
+  { id: "s2", name: "Vuetify", level: 88, description: "کامپوننت‌های حرفه‌ای Vue", icon_class: "mdi-vuetify" },
+  { id: "s3", name: "Django REST", level: 85, description: "ساخت API قدرتمند", icon_class: "mdi-language-python" },
+  { id: "s4", name: "JavaScript", level: 95, description: "ES6+ و فراتر", icon_class: "mdi-language-javascript" },
+  { id: "s5", name: "Responsive Design", level: 90, description: "طراحی واکنش‌گرا", icon_class: "mdi-responsive" },
 ];
 
 const displaySkills = computed(() => {
-  // 1. if skillsStore.featured available -> show that
-  if (skillsStore.featured && skillsStore.featured.length)
-    return skillsStore.featured;
-  // 2. if profile has skills array -> use that
-  if (
-    profileStore.profile &&
-    Array.isArray(profileStore.profile.skills) &&
-    profileStore.profile.skills.length
-  )
-    return profileStore.profile.skills;
-  // 3. if skillsStore.skills has items -> use first N
-  if (skillsStore.skills && skillsStore.skills.length)
-    return skillsStore.skills.slice(0, 6);
-  // 4. fallback
+  if (skillsStore.featured.length > 0) return skillsStore.featured;
+  if (profileStore.profile?.skills?.length > 0) return profileStore.profile.skills;
   return localSkills;
 });
 
-// technologies: prefer profile.technologies else local
-const localTechnologies = [
-  { name: "Vue.js", icon: "mdi-vuejs" },
-  { name: "Vuetify", icon: "mdi-vuetify" },
-  { name: "Django", icon: "mdi-language-python" },
-  { name: "JavaScript", icon: "mdi-language-javascript" },
-  { name: "HTML5", icon: "mdi-language-html5" },
-  { name: "CSS3", icon: "mdi-language-css3" },
-  { name: "Git", icon: "mdi-git" },
-];
-const resolvedTechnologies = computed(() => {
-  if (
-    profileStore.profile &&
-    Array.isArray(profileStore.profile.technologies) &&
-    profileStore.profile.technologies.length
-  )
-    return profileStore.profile.technologies;
-  return localTechnologies;
+/* ------------------------------------------------------------------ */
+/*  watch بعد از displaySkills + immediate                           */
+/* ------------------------------------------------------------------ */
+watch(
+  displaySkills,
+  (newSkills) => {
+    animatedLevels.value = {};
+    nextTick(() => {
+      newSkills.forEach((skill, index) => {
+        setTimeout(() => {
+          animatedLevels.value[skill.id] = skill.level;
+        }, index * 150);
+      });
+    });
+  },
+  { immediate: true }
+);
+
+/* ------------------------------------------------------------------ */
+/*  بارگذاری اولیه                                                   */
+/* ------------------------------------------------------------------ */
+onMounted(async () => {
+  await Promise.all([
+    profileStore.loadProfile().catch(() => {}),
+    skillsStore.loadFeatured().catch(() => {}),
+  ]);
 });
 
-// social icon mapper
+/* ------------------------------------------------------------------ */
+/*  بقیه computed ها                                                 */
+/* ------------------------------------------------------------------ */
+const hasSocialLinks = computed(() => {
+  return profileStore.profile?.social_links && Object.values(profileStore.profile.social_links).some(Boolean);
+});
+
+const shouldShowSkills = computed(() => !skillsStore.loading && !skillsStore.error);
+
+const resolvedTechnologies = computed(() => {
+  return profileStore.profile?.technologies?.length > 0
+    ? profileStore.profile.technologies
+    : [
+        { name: "Vue 3", icon: "mdi-vuejs" },
+        { name: "Vuetify 3", icon: "mdi-vuetify" },
+        { name: "Django", icon: "mdi-language-python" },
+        { name: "PostgreSQL", icon: "mdi-database" },
+        { name: "Docker", icon: "mdi-docker" },
+        { name: "Git", icon: "mdi-git" },
+        { name: "Tailwind", icon: "mdi-tailwind" },
+      ];
+});
+
+/* ------------------------------------------------------------------ */
+/*  توابع کمکی                                                       */
+/* ------------------------------------------------------------------ */
 function socialIcon(key) {
   const map = {
-    facebook: "mdi-facebook",
+    github: "mdi-github",
+    linkedin: "mdi-linkedin",
     twitter: "mdi-twitter",
     instagram: "mdi-instagram",
-    linkedin: "mdi-linkedin",
-    github: "mdi-github",
     youtube: "mdi-youtube",
+    facebook: "mdi-facebook",
   };
   return map[key] || "mdi-web";
 }
 
-// reload both stores
 function reloadAll() {
-  profileStore.loadProfile(true).catch(() => {});
-  skillsStore.loadFeatured(true).catch(() => {});
+  profileStore.loadProfile(true);
+  skillsStore.loadFeatured(true);
 }
 
-/* Helper: resolve relative media URL to absolute using VITE_API_URL
-   If the backend already returns absolute URLs (http(s)://...) this returns them unchanged.
-*/
 function resolveImageUrl(pathOrUrl) {
   if (!pathOrUrl) return "";
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
@@ -276,149 +286,179 @@ function resolveImageUrl(pathOrUrl) {
   const base = api.replace(/\/api\/?$/, "");
   return `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
 }
+
+function isValidIcon(iconClass) {
+  return /^fa[bsrl]? fa-/.test(iconClass) || /^mdi-/.test(iconClass);
+}
+
+function getSkillColor(level) {
+  if (level >= 90) return "success";
+  if (level >= 75) return "info";
+  if (level >= 60) return "warning";
+  return "error";
+}
 </script>
 
 <style scoped>
-.about-page {
-  font-family: "Shabnam", sans-serif;
-  color: white;
-}
+/* فونت فارسی */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+.about-page { font-family: 'Vazirmatn', sans-serif; }
 
-/* Hero Section */
+/* Hero - کوتاه و overlap */
 .hero-section {
-  min-height: 40vh;
-  background: linear-gradient(180deg, #1a1a1a, #111111);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  min-height: 65vh;
+  max-height: 500px;
   position: relative;
-  padding: 60px 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 }
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+  filter: blur(1px);
+  z-index: 1;
+}
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15), transparent 70%);
+}
+.z-10 { z-index: 10; }
 
+/* نام و عنوان */
 .hero-name {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 700;
+  background: linear-gradient(90deg, #00bcd4, #2196f3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
 }
-
 .hero-title {
   font-size: 1.4rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #ccc;
+  font-weight: 300;
   margin-top: 8px;
 }
+.text-shadow { text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.text-shadow-sm { text-shadow: 0 1px 5px rgba(0,0,0,0.3); }
 
-/* Profile Avatar overlapping hero */
+/* تصویر پروفایل */
 .profile-avatar {
-  margin-top: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  width: 180px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-top: 2rem;
+  border: 5px solid rgba(255,255,255,0.25) !important;
+  animation: float 5s ease-in-out infinite;
 }
-.profile-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* 👈 باعث میشه عکس کامل دیده بشه */
-  object-position: center;
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
-/* Bio Section */
-.bio-section {
-  margin-top: 100px;
-  max-width: 1000px;
+
+/* محتوا با overlap */
+.content-section {
+  margin-top: -80px;
+  position: relative;
+  z-index: 20;
+  background: #0a0a0a;
+  border-radius: 24px 24px 0 0;
+  padding-top: 100px !important;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 16px;
 }
 
+/* عنوان بخش‌ها */
 .section-title {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #00bcd4;
+  position: relative;
+  display: inline-block;
 }
-
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #00bcd4, transparent);
+  border-radius: 2px;
+}
 .about-text {
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.7;
+  font-size: 1.1rem;
+  line-height: 2;
+  color: #ddd;
 }
 
-/* skills */
-.skills-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-.skill-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-.skill-name {
-  font-weight: 600;
-}
-.skill-level {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
-}
-
-/* Contact & Social */
-.contact-info p {
-  color: rgba(255, 255, 255, 0.75);
+/* اطلاعات تماس */
+.contact-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #aaa;
+  font-size: 1rem;
 }
+.contact-item v-icon { color: #00bcd4; }
 
+/* مهارت‌ها */
+.skill-card {
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+.skill-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+}
+.skill-name { color: white; font-size: 1.1rem; }
+.skill-progress { border-radius: 4px; }
+.text-white-opacity { color: rgba(255,255,255,0.7); }
+
+/* دکمه‌های اجتماعی */
 .social-btn {
-  color: white;
-  transition: transform 0.18s;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 .social-btn:hover {
-  transform: scale(1.08);
-  color: #00bcd4;
+  background: #00bcd4;
+  transform: translateY(-3px) scale(1.1);
 }
 
-/* Technologies */
+/* تکنولوژی‌ها */
 .tech-chip {
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
-  transition: transform 0.16s;
+  font-weight: 500;
+  border-radius: 50px !important;
+  transition: all 0.3s ease;
+}
+.tech-chip:hover {
+  background: rgba(0,188,212,0.1);
+  transform: scale(1.05);
 }
 
-.tech-chip.hover-scale:hover {
-  transform: scale(1.04);
+/* دکمه رزومه */
+.resume-btn {
+  border-radius: 50px;
+  text-transform: none;
+  font-weight: 500;
+  padding: 0 24px !important;
 }
 
-/* responsive tweaks */
-@media (max-width: 900px) {
-  .profile-avatar {
-    bottom: -70px;
-    width: 140px;
-    height: 140px;
-  }
-  .hero-name {
-    font-size: 2rem;
-  }
-  .bio-section {
-    margin-top: 80px;
-  }
+/* ریسپانسیو */
+@media (max-width: 960px) {
+  .hero-name { font-size: 3rem; }
+  .hero-title { font-size: 1.3rem; }
+  .profile-avatar { size: 140px; }
 }
-.skill-item {
-  cursor: default;
-  transition: transform 0.2s ease;
-}
-.skill-item:hover {
-  transform: scale(1.02);
-}
-
-.v-tooltip span {
-  white-space: normal !important;
-  line-height: 1.5;
-  font-size: 0.9rem;
-  max-width: 260px;
+@media (max-width: 600px) {
+  .hero-name { font-size: 2.5rem; }
+  .section-title { font-size: 2rem; }
+  .content-section { margin-top: -60px; padding-top: 80px !important; }
 }
 </style>
