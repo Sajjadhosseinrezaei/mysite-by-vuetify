@@ -338,7 +338,7 @@ const featuredProjects = computed(() => {
 
 async function loadProjects() {
   try {
-    await projectsStore.fetchProjects()
+    await projectsStore.loadProjects()
   } catch (err) {
     // نمایش خطا بر اساس state خود store انجام می‌شود.
     // خطا را دوباره پرتاب نمی‌کنیم تا handler کلی لازم نباشد.
