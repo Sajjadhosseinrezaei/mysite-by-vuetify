@@ -90,7 +90,7 @@
         >
           <v-carousel-item
             v-for="(src, idx) in slides"
-            :key="`${src}-${idx}`"
+            :key="`${src.url}-${idx}`"
           >
             <button
               type="button"
@@ -99,7 +99,7 @@
               @click="openLightbox(idx)"
             >
               <v-img
-                :src="src"
+                :src="src.url"
                 :alt="`تصویر ${idx + 1} از پروژه ${project.title}`"
                 height="100%"
                 cover
@@ -305,8 +305,8 @@
           />
 
           <v-img
-            v-if="slides[currentImg]"
-            :src="slides[currentImg]"
+            v-if="slides[currentImg]?.url"
+            :src="slides[currentImg].url"
             :alt="`تصویر ${currentImg + 1} از پروژه ${project?.title || ''}`"
             max-height="78vh"
             width="100%"
